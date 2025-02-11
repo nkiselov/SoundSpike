@@ -3,7 +3,7 @@
 }(this, function() {
 
 async function loadDataset(){
-    let res = await fetch("/TIMIT/train_data.csv").then(res => res.text())
+    let res = await fetch("./TIMIT/train_data.csv").then(res => res.text())
     let lines = res.split("\r\n")
     let labels = lines[0].split(",")
     let entries = lines.slice(1).map((str)=>{
@@ -20,7 +20,7 @@ async function loadDataset(){
         let id = path.slice(0,path.indexOf("."))
         let type = path.slice(path.indexOf(".")+1)
         if(samples[id]==null) samples[id] = {}
-        fullPath="/TIMIT/data/"+path
+        fullPath="./TIMIT/data/"+path
         if(type=="PHN"){
             samples[id].phonetic = fullPath
         }
