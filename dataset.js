@@ -3,7 +3,7 @@
 }(this, function() {
 
 async function loadDataset(){
-    let res = await fetch("./TIMIT/train_data.csv").then(res => res.text())
+    let res = await fetch("/TIMIT/train_data.csv").then(res => res.text())
     let lines = res.split("\r\n")
     let labels = lines[0].split(",")
     let entries = lines.slice(1).map((str)=>{
