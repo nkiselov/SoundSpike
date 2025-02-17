@@ -4,13 +4,13 @@ console.log(dataset)
 let sampleView = makeSampleView()
 let selectedSample
 
-timit.readSample(dataset[2]).then(res=>{
+timit.readSample(dataset[23]).then(res=>{
     selectedSample = res
     sampleView.setSample(res)
 })
 
 let spikeView = make2DArrayView()
-let spikeCodec = null
+let spikeCodec = makeRFAutoCodec()
 let reconstructView = makeSampleView()
 let spikeCount = makeh("0")
 let simPerc = makeh("0")
@@ -21,27 +21,27 @@ let views = makevbox([
     reconstructView.html
 ])
 views.style.width="100%"
-let rfSettings = makeRFSettings(settings=>spikeCodec=makeRFCodec(settings))
+// let rfSettings = makeRFSettings(settings=>spikeCodec=makeRFCodec(settings))
 let main = makehbox([
     makevbox([
-        makeInput("Smpl#",2,(v)=>{
+        makeInput("Smpl#",20,(v)=>{
             timit.readSample(dataset[v]).then(res=>{
                 selectedSample = res
                 sampleView.setSample(res)
             })
         }).html,
-        makeDropdown("Codec",["RF0","Gammatone1","Gammatone2","Gammatone3"],(i)=>{
-            rfSettings.setPreset(i)
-        },2),
-        makeh("Codec values"),
-        rfSettings.html,
+        // makeDropdown("Codec",["RF0","Gammatone1","Gammatone2","Gammatone3"],(i)=>{
+        //     rfSettings.setPreset(i)
+        // },2),
+        // makeh("Codec values"),
+        // rfSettings.html,
         makeButton("Spiketrum",()=>{
-            let spks = spikeCodec.encode(selectedSample.audio)
+            let [spks,ths] = spikeCodec.encode(selectedSample.audio)
 
             spikeView.setData(transpose(transpose(spks).map(arr=>putInBins(arr,16))))
-            spikeCount.innerHTML = "Spk#: "+sumArr(spks.flat())
+            spikeCount.innerHTML = "Spk#: "+sumArr(spks.flat().map(v=>v>0?1:0))
 
-            let dec = spikeCodec.decode(spks)
+            let dec = spikeCodec.decode(spks,ths)
             let decNorm = arrNorm(dec)
             let audNorm = arrNorm(selectedSample.audio)
             reconstructView.setAudio(dec.map(v=>v/decNorm*audNorm))

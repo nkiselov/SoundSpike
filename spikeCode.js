@@ -82,6 +82,8 @@ function makeRFCore(ord,f,t,dt,uth){
     let vs = Array(ord+1).fill(0)
     let lct = Math.cos(Math.PI*2*f*dt)*Math.exp(-dt/t)
     let lst = Math.sin(Math.PI*2*f*dt)*Math.exp(-dt/t)
+    let mul = 0
+    let mulDec = Math.exp(-dt*f/10)
     return {
         process: (inp)=>{
             let oldv = vs[ord]
@@ -97,14 +99,19 @@ function makeRFCore(ord,f,t,dt,uth){
                 us[i] = nu
                 vs[i] = nv
             }
-            let fire = us[ord]>uth && vs[ord]>=0 && oldv<0
+            let fire = us[ord]>uth*(1+mul) && vs[ord]>=0 && oldv<0
+            let ret = 0
             if(fire){
+                //1+mul optional
+                ret=1+mul
+                mul+=10
                 for(let i=0; i<=ord; i++){
                     us[i] = 0
                     vs[i] = 0
                 }
             }
-            return fire ? 1 : 0
+            mul*=mulDec
+            return ret
         },//11560
         reset: ()=>{
             u=0
@@ -147,6 +154,46 @@ function makeRFCodec(settings){
                 for(let j=0; j<settings.n; j++){
                     if(spikes[i][j]>0)
                     addRFKernel(output,...rf_params[j],i,0.001)
+                }
+            }
+            return output
+        }
+    }
+}
+
+function makeRFAutoCodec(n=30,lf=60,hf=6000,utl=0.5,uth=400,tss=30){
+    return {
+        encode: audio=>{
+            let time = audio.length/16000
+            let spks = new Array(audio.length).fill(0).map(()=>new Array(n).fill(0))
+            let ths = new Array(n).fill(0)
+            for(let i=0; i<n; i++){
+                let f = Math.exp(Math.log(hf/lf)*i/n+Math.log(lf))
+                let ul = utl
+                let uh = uth
+                let m = ul
+                while(uh/ul-1>0.1){
+                    m = Math.sqrt(ul*uh)
+                    let core = makeRFCore(3,f,0.001,1/16000,m)
+                    let sum = 0
+                    for(let j=0; j<audio.length; j++){
+                        spks[j][i] = core.process(audio[j])
+                        sum+=spks[j][i]>0 ? 1 : 0
+                    }
+                    if(sum<=time*tss) uh=m
+                    else ul=m
+                }
+                ths[i] = m
+            }
+            console.log(ths)
+            return [spks, ths]
+        },
+        decode: (spikes,ths)=>{
+            let output = new Array(spikes.length).fill(0)
+            for(let j=0; j<n; j++){
+                let f = Math.exp(Math.log(hf/lf)*j/n+Math.log(lf))
+                for(let i=0; i<spikes.length; i++){
+                    if(spikes[i][j]>0) addRFKernel(output,3,f,0.001,1/16000,spikes[i][j]*ths[j],i,0.001)
                 }
             }
             return output
