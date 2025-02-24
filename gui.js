@@ -30,7 +30,16 @@ function maketoggle(checked, onchange){
     tog.type = "checkbox"
     tog.checked = checked
     tog.onchange = ()=>onchange(tog.checked)
-    return tog
+    return {
+        html: tog,
+        setValue: val=>{
+            tog.checked=val
+            onchange(val)
+        },
+        getValue: ()=>{
+            return tog.checked
+        }
+    }
 }
 
 function makeInput(label,value,onchange){
@@ -46,7 +55,13 @@ function makeInput(label,value,onchange){
     cont.appendChild(inp)
     return {
         html: cont,
-        setValue: val=> inp.value = val
+        setValue: val=>{
+            inp.value = val
+            onchange(val)
+        },
+        getValue: ()=>{
+            return inp.value
+        }
     }
 }
 

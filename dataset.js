@@ -40,7 +40,6 @@ async function loadDataset(){
 
 async function readSample(sample){
     let audioData = await fetch(sample.audio).then(res => res.arrayBuffer()).catch(err=>console.error(err))
-    console.log(audioData)
     let audioCtx = new AudioContext({sampleRate:16000});
     let decodedData = await audioCtx.decodeAudioData(audioData);
 

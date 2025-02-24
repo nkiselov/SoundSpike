@@ -103,7 +103,7 @@ function makeRFCore(ord,f,t,dt,uth){
             let ret = 0
             if(fire){
                 //1+mul optional
-                ret=1+mul
+                ret=1//+mul
                 mul+=10
                 for(let i=0; i<=ord; i++){
                     us[i] = 0
@@ -185,7 +185,6 @@ function makeRFAutoCodec(n=30,lf=60,hf=6000,utl=0.5,uth=400,tss=30){
                 }
                 ths[i] = m
             }
-            console.log(ths)
             return [spks, ths]
         },
         decode: (spikes,ths)=>{
