@@ -22,9 +22,13 @@ function randMatrix(n,m,min,max){
     return new Array(n).fill(0).map(()=>new Array(m).fill(0).map(()=>Math.random()*(max-min)+min))
 }
 
+function sqmag(arr){
+    return Math.sqrt(arr.reduce((sm, a) => sm+a*a, 0))
+}
+
 function normalize(arr){
-    let max = arr.reduce((mx, a) => Math.max(mx,a), 0)
-    return arr.map(v=>v/max*255)
+    let sq = sqmag(arr)
+    return arr.map(v=>v/sq)
 }
 
 function weights2map(weights,wPre,hPre,wPost,hPost){

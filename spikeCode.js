@@ -69,7 +69,7 @@ function choose(n,m){
     if(m<0 || m>n || n<0) return 0
     if(2*m<n) return choose(n,n-m)
     let ans = 1
-    for(let i=m+1; i<n; i++) ans*=i
+    for(let i=m+1; i<=n; i++) ans*=i
     for(let i=2; i<=n-m; i++) ans/=i
     return ans
 }

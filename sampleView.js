@@ -208,3 +208,13 @@ function makeSampleView(){
         }
     }
 }
+
+function make2DArrayViewTranscript(){
+    let transcriptLines = new Array(2).fill(0).map(()=>makeTranscriptLine())
+    let arrayView = make2DArrayView()
+    return {
+        html: makevbox([arrayView.html,...transcriptLines.map(el=>el.html)]),
+        setData: data => arrayView.setData(data),
+        setTranscript: (ind,width,trans) => transcriptLines[ind].setTranscript(width,trans)
+    }
+}
