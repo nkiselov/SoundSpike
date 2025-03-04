@@ -70,3 +70,58 @@ class FeatureAccumulator{
         return ranges
     }
 }
+
+class SVMAccumulator{
+
+    constructor(svm_features){
+        this.svm_features = svm_features
+        this.chc = 30
+    }
+
+    processSpikes(spks){
+        let rates = new Array(this.chc).fill(0)
+        let bestClass = new Array(spks.length).fill(-1)
+        let wlen = 800
+        for(let i=0; i<spks.length; i++){
+            for(let j=0; j<this.chc; j++){
+                rates[j]+=spks[i][j]
+                if(i>=wlen) rates[j]-=spks[i-wlen][j]
+            }
+            let mevl = 0
+            let bind = -1
+            for(let c=0; c<this.svm_features.length; c++){
+                let evl = this.svm_features[c].beta[this.chc]
+                for(let j=0; j<this.chc; j++){
+                    evl+=this.svm_features[c].beta[j]*rates[j]
+                }
+                if(i>0 && c==bestClass[i-1]) evl+=1;
+                if(evl>mevl){
+                    mevl = evl;
+                    bind = c;
+                }
+            }
+            bestClass[i] = bind;
+        }
+        let ranges = []
+        let prev = bestClass[0]
+        let last = 0
+        for(let i=0; i<spks.length; i++){
+            if(prev!=bestClass[i]){
+                ranges.push({
+                    symbol:  prev==-1?"-1":this.svm_features[prev].label,
+                    start: last,
+                    end: i
+                })
+                last=i
+                prev=bestClass[i]
+            }
+        }
+        ranges.push({
+            symbol: prev==-1?"-1":this.svm_features[prev].label,
+            start: last,
+            end: spks.length
+        })
+        return ranges
+    }
+
+}

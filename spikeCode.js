@@ -161,7 +161,7 @@ function makeRFCodec(settings){
     }
 }
 
-function makeRFAutoCodec(n=30,lf=60,hf=6000,utl=0.5,uth=400,tss=30){
+function makeRFAutoCodec(n=30,lf=60,hf=6000,utl=1,uth=400,tss=30,tau=0.001){
     return {
         encode: audio=>{
             let time = audio.length/16000
@@ -174,7 +174,7 @@ function makeRFAutoCodec(n=30,lf=60,hf=6000,utl=0.5,uth=400,tss=30){
                 let m = ul
                 while(uh/ul-1>0.1){
                     m = Math.sqrt(ul*uh)
-                    let core = makeRFCore(3,f,0.001,1/16000,m)
+                    let core = makeRFCore(3,f,tau,1/16000,m)
                     let sum = 0
                     for(let j=0; j<audio.length; j++){
                         spks[j][i] = core.process(audio[j])
@@ -192,7 +192,7 @@ function makeRFAutoCodec(n=30,lf=60,hf=6000,utl=0.5,uth=400,tss=30){
             for(let j=0; j<n; j++){
                 let f = Math.exp(Math.log(hf/lf)*j/n+Math.log(lf))
                 for(let i=0; i<spikes.length; i++){
-                    if(spikes[i][j]>0) addRFKernel(output,3,f,0.001,1/16000,spikes[i][j]*ths[j],i,0.001)
+                    if(spikes[i][j]>0) addRFKernel(output,3,f,tau,1/16000,spikes[i][j]*ths[j],i,0.001)
                 }
             }
             return output
