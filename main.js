@@ -1,7 +1,7 @@
 Promise.all([
     timit.loadDataset(),
     libsvm,
-    readTextFile("models/s-model (6).txt")
+    readTextFile("models/sz-model.txt")
 ]).then(resource=>{
     let dataset = resource[0]
     SVM = resource[1]
@@ -35,7 +35,7 @@ Promise.all([
         let res = Array(times.length).fill(0)
         for(let i=0; i<times.length; i++){
             while(ph+1<phon.length && phon[ph].end<times[i]*16000) ph++;
-            res[i] = phon[ph].symbol=="s"?1:0
+            res[i] = (phon[ph].symbol=="s" || phon[ph].symbol=="z")?1:0
         }
         return res
     }
@@ -46,7 +46,7 @@ Promise.all([
     function runExample(train){
         let res = MFCC(selectedSample.audio)
         reconstructView.setData(res.vecs)
-        reconstructView.setTranscript(0,selectedSample.audio.length,selectedSample.phonetic.filter(ph=>ph.symbol=="s"))
+        reconstructView.setTranscript(0,selectedSample.audio.length,selectedSample.phonetic.filter(ph=>ph.symbol=="s" || ph.symbol=="z"))
         graph.setData(clasf.transcribe(res.vecs).map(v=>Math.max(v,0)))
         if(!train) return
         clasf.addTrainData(res.vecs,makeLabels(res.times,selectedSample.phonetic))
