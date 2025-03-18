@@ -4,8 +4,7 @@
 
 function createSpectrogram(samples, {
     fftSize = 512,
-    hopSize = 128,
-    maxFreq = 5000,
+    hopSize = 256,
     windowType = 'hann'
   } = {}) {
     const fft = new Float32Array(fftSize);
@@ -20,6 +19,7 @@ function createSpectrogram(samples, {
       }
     }
   
+    let times = []
     // Process frames
     for (let start = 0; start + fftSize <= samples.length; start += hopSize) {
       // Apply window and prepare FFT input
@@ -38,11 +38,14 @@ function createSpectrogram(samples, {
       }
       
       spectrogram.push(Array.from(spectrum));
+      times.push(start/16000)
     }
     
-    return spectrogram.map(farr=>{
-        return farr.slice(0,farr.length*maxFreq/8000)
-    });
+    return {
+      spectrogram: spectrogram,
+      times: times,
+      freqs: [...Array(fftSize/2).keys()].map(i=>(i+1)/fftSize*16000)
+    }
   }
   
   // FFT implementation

@@ -88,7 +88,7 @@ function makeSpectrogramView(){
     return {
         html: view.html,
         setAudio: audio=>{
-            view.setData(fft.createSpectrogram(audio))
+            view.setData(fft.createSpectrogram(audio).spectrogram)
         }
     }
 }
@@ -210,7 +210,7 @@ function makeSampleView(){
 }
 
 function make2DArrayViewTranscript(){
-    let transcriptLines = new Array(2).fill(0).map(()=>makeTranscriptLine())
+    let transcriptLines = new Array(1).fill(0).map(()=>makeTranscriptLine())
     let arrayView = make2DArrayView()
     return {
         html: makevbox([arrayView.html,...transcriptLines.map(el=>el.html)]),

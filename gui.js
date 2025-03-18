@@ -53,6 +53,7 @@ function makeInput(label,value,onchange){
     cont.className = "hbox"
     cont.appendChild(text)
     cont.appendChild(inp)
+    onchange(value)
     return {
         html: cont,
         setValue: val=>{
@@ -126,4 +127,61 @@ function makeDropdown(label, options, onchange, ind=0) {
     cont.appendChild(text);
     cont.appendChild(select);
     return cont;
+}
+
+function makeGraph(width = 300, height = 150) {
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    canvas.style = "width: 100%;aspect-ratio: unset;height: 250px;"
+    
+    let data = [];
+    
+    let gMax = 1.5
+    let gLine = 1
+    function draw() {
+        if (data.length === 0) return;
+        
+        ctx.clearRect(0, 0, width, height);
+        ctx.strokeStyle = "#0066cc";
+        ctx.lineWidth = 2;
+        
+        const max = gMax
+        const min = 0;
+        const range = max - min || 1;
+        
+        ctx.beginPath();
+        data.forEach((value, index) => {
+            const x = (index / (data.length - 1)) * width;
+            const y = height - ((value - min) / range) * (height - 20);
+            
+            if (index === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        });
+        ctx.stroke();
+
+        ctx.strokeStyle = "#888888"
+        ctx.beginPath();
+        ctx.moveTo(0,height-height*gLine/max)
+        ctx.lineTo(width,height-height*gLine/max)
+        ctx.stroke()
+    }
+    
+    return {
+        html: canvas,
+        setData: (newData) => {
+            data = [...newData];
+            draw();
+        },
+        setLine(line){
+            gLine = line
+        },
+        setMax(max){
+            gMax = max
+        }
+    };
 }
