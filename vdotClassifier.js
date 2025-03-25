@@ -42,8 +42,8 @@ class vdotClassifier{
     }
 
     elevate(v){
-        return [...v,...v.map(x=>x*x)]
-        // return v
+        // return [...v,...v.map(x=>x*x)]
+        return v
     }
 
     getSim(v,i){
