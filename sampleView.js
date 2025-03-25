@@ -48,7 +48,6 @@ function makeTranscriptLine(){
 
 function make2DArrayView(){
     let canvas = document.createElement("canvas")
-    canvas.style = "width: 100%;aspect-ratio: unset;height: 250px;"
     let container = makehbox([canvas])
     return {
         html: container,
@@ -59,7 +58,7 @@ function make2DArrayView(){
             
             canvas.width = width;
             canvas.height = height;
-            
+            canvas.style.aspectRatio = width/height;
             const imageData = ctx.createImageData(width, height);
             
             // Find max value for normalization
@@ -223,7 +222,7 @@ function make2DArrayViewTranscript(){
 function make2DArrayViewGallery(name,arrs,n){
     shuffleArr(arrs)
     let tables = Array(n).fill(0).map(()=>make2DArrayView())
-    let input = makeInput(name,0,val=>{
+    let input = makeInput("<b>"+name+"</b>",0,val=>{
         let start = Math.max(n*val,0)
         let end = Math.min(arrs.length,n*val+n)
         for(let i=0; i<n; i++){

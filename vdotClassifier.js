@@ -1,5 +1,5 @@
 class vdotClassifier{
-    CONFIDENCE = 0.8
+    CONFIDENCE = 0.75
     MERGE_CONFIDENCE = 0.9
     MIN_RMS = 0.2
     BIAS_STRENGTH = 0.05
@@ -42,7 +42,8 @@ class vdotClassifier{
     }
 
     elevate(v){
-        return v
+        return [...v,...v.map(x=>x*x)]
+        // return v
     }
 
     getSim(v,i){
@@ -150,9 +151,9 @@ class vdotClassifier{
     }
 
     printDesc(){
-        // let res = this.vecs.map((v,i)=>[this.freqs[i],i])
-        // res.sort((a,b)=>Math.sign(a[0]-b[0]))
-        // console.log(res)
+        let res1 = this.vecs.map((v,i)=>[this.freqs[i],i])
+        res1.sort((a,b)=>Math.sign(a[0]-b[0]))
+        console.log(res1)
         let res = []
         for(let i1=0; i1<this.vecs.length; i1++){
             for(let i2=i1+1; i2<this.vecs.length; i2++){
