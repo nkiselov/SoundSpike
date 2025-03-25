@@ -16,7 +16,7 @@ function MFCC(sig){
     let freqs = fftRes.freqs
     let times = fftRes.times
 
-    let nfilt = 20
+    let nfilt = 16
     let high_mel = hz2mel(8000)
     let fs = [...Array(nfilt+2).keys()].map(i=>mel2hz(i/(nfilt+1)*high_mel))
     let bands = spectr.map(sp=>{
@@ -37,10 +37,6 @@ function MFCC(sig){
             return res/sumw*100
         })
     })
-    let cepst = bands.map(band=>{
-
-    })
-
     return {
         vecs: bands,
         times: times

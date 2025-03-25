@@ -138,8 +138,8 @@ function makeGraph(width = 300, height = 150) {
     
     let data = [];
     
-    let gMax = 1.5
-    let gLine = 1
+    let gMax = 1
+    let gLine = 0.7
     function draw() {
         if (data.length === 0) return;
         
@@ -185,3 +185,4 @@ function makeGraph(width = 300, height = 150) {
         }
     };
 }
+

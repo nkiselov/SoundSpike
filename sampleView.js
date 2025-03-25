@@ -1,5 +1,6 @@
 
 function stringToColor(str) {
+    if(!isNaN(str)) str+='caa'
     // Use djb2 hash for better distribution
     let hash = 5381;
     for (let c of str) {
@@ -217,4 +218,25 @@ function make2DArrayViewTranscript(){
         setData: data => arrayView.setData(data),
         setTranscript: (ind,width,trans) => transcriptLines[ind].setTranscript(width,trans)
     }
+}
+
+function make2DArrayViewGallery(name,arrs,n){
+    shuffleArr(arrs)
+    let tables = Array(n).fill(0).map(()=>make2DArrayView())
+    let input = makeInput(name,0,val=>{
+        let start = Math.max(n*val,0)
+        let end = Math.min(arrs.length,n*val+n)
+        for(let i=0; i<n; i++){
+            if(start+i<end){
+                tables[i].html.style.display="block"
+                tables[i].setData(arrs[start+i])
+            }else{
+                tables[i].html.style.display="none"
+            }
+        }
+    })
+    let res = makehbox(tables.map(tbl=>makevbox([tbl.html])))
+    res.style.justifyContent="center"
+    res.style.gap="10px"
+    return makevbox([makehbox([input.html,makeh(arrs.length+"/"+n)]),res])
 }

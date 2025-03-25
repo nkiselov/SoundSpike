@@ -1,11 +1,7 @@
 Promise.all([
     timit.loadDataset(),
-    libsvm,
-    readTextFile("models/sz-model.txt")
 ]).then(resource=>{
     let dataset = resource[0]
-    SVM = resource[1]
-    let svm_data = resource[2]
 
     let sampleView = makeSampleView()
     let selectedSample
@@ -13,7 +9,7 @@ Promise.all([
     let trainToggle = maketoggle(trainEnable,(v)=>trainEnable=v)
     let graph = makeGraph(1000,250)
     let reconstructView = make2DArrayViewTranscript()
-    let smplNum = makeInput("Smpl#",1,(v)=>{
+    let smplNum = makeInput("Smpl#",0,(v)=>{
         timit.readSample(dataset[v]).then(res=>{
             selectedSample = res
             sampleView.setSample(res)
@@ -21,37 +17,36 @@ Promise.all([
         })
     })
     let learnText = makeh("Learning")
+    let countText = makeh("Features: 0")
     learnText.style.display = "none"
+    let graphType = -1
+    let simView = make2DArrayView()
+    let transformView = make2DArrayView()
 
     let views = makevbox([
         sampleView.html,
         reconstructView.html,
-        graph.html
+        // makehbox([simView.html])
+        // graph.html
+        transformView.html
     ])
     views.style.width="100%"
 
-    function makeLabels(times,phon){
-        let ph = 0
-        let res = Array(times.length).fill(0)
-        for(let i=0; i<times.length; i++){
-            while(ph+1<phon.length && phon[ph].end<times[i]*16000) ph++;
-            res[i] = (phon[ph].symbol=="s" || phon[ph].symbol=="z")?1:0
-        }
-        return res
-    }
+    let clasf = new vdotClassifier()
 
-    let clasf = new Classifier()
-    clasf.svm = SVM.load(svm_data)
-    clasf.trained = true
     function runExample(train){
         let res = MFCC(selectedSample.audio)
         reconstructView.setData(res.vecs)
-        reconstructView.setTranscript(0,selectedSample.audio.length,selectedSample.phonetic.filter(ph=>ph.symbol=="s" || ph.symbol=="z"))
-        graph.setData(clasf.transcribe(res.vecs).map(v=>Math.max(v,0)))
-        if(!train) return
-        clasf.addTrainData(res.vecs,makeLabels(res.times,selectedSample.phonetic))
-        if(!trainEnable) return
-        smplNum.setValue(parseInt(smplNum.getValue())+1)
+        reconstructView.setTranscript(0,res.vecs.length,clasf.transcribe(res.vecs))
+        if(graphType>=0 && graphType<clasf.vecs.length)
+        graph.setData(res.vecs.map(v=>clasf.getSim(v,graphType)))
+        if(train){
+            clasf.train(res.vecs)
+            if(trainEnable) smplNum.setValue(parseInt(smplNum.getValue())+1)
+        }
+        transformView.setData(clasf.transform(res.vecs))
+        // simView.setData(clasf.simMatrix())
+        countText.innerHTML = "Features: "+clasf.vecs.length
     }
 
     let main = makehbox([
@@ -61,22 +56,14 @@ Promise.all([
                 runExample(true)
             }),
             makehbox([makeh("Auto Train"),trainToggle.html]),
-            makeButton("Learn",()=>{
-                learnText.style.display = "block"
-                setTimeout(()=>{
-                    clasf.learn()
-                    learnText.style.display = "none"
-                },10)
-            }),
-            makeButton("Test",()=>{
-                runExample(false)
-            }),
-            makeButton("Download Model",()=>{
-                downloadTextFile(clasf.svm.serializeModel(),"s-model.txt")
-            }),
             learnText,
-            makeInput("Max",1,val=>graph.setMax(val)).html,
-            makeInput("Line",0.7,val=>graph.setLine(val)).html
+            makeInput("Type (graph)",0,(v)=>{
+                graphType=v
+                if(selectedSample) runExample(false)
+            }).html,
+            makeButton("Print", ()=>clasf.printDesc()),
+            countText,
+            makeButton("Run Templater", ()=>runTemplater(dataset,clasf))
         ]),
         views
     ])
