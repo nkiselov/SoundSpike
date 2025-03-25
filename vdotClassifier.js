@@ -1,5 +1,5 @@
 class vdotClassifier{
-    CONFIDENCE = 0.75
+    CONFIDENCE = 0.8
     MERGE_CONFIDENCE = 0.9
     MIN_RMS = 0.2
     BIAS_STRENGTH = 0.05
