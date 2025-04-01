@@ -10,7 +10,7 @@
     <body>
         <script defer>
             Promise.all([
-                readTextFile("tracks.json")
+                readTextFile("tracks2.json")
             ]).then((res)=>{
                 tracks = JSON.parse(res)
                 console.log(tracks)
