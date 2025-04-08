@@ -186,3 +186,15 @@ function makeGraph(width = 300, height = 150) {
     };
 }
 
+function makeAudioView(audioPath){
+    let comp = document.createElement("audio")
+    comp.src = audioPath
+    comp.controls = true
+    return comp
+}
+
+function makeImgView(imgPath){
+    let comp = document.createElement("img")
+    comp.src = imgPath
+    return comp
+}

@@ -10,23 +10,82 @@
     <body>
         <script defer>
             Promise.all([
-                readTextFile("tracks2.json")
-            ]).then((res)=>{
-                tracks = JSON.parse(res)
-                console.log(tracks)
-                let track = tracks[0][1][0]
-                let width = track[0].length
-                let height = track.length
-                let main = makevbox(tracks.map(word=>makeArrayViewIntervalsGallery(word[0],width,height,word[1].map(v=>v.flat()),5)))
+                readSampleFolder("web_gfx/sample_good_0"),
+                readSampleFolder("web_gfx/sample_good_1"),
+                readSampleFolder("web_gfx/sample_good_2"),
+                readSampleFolder("web_gfx/sample_good_3"),
+                readSampleFolder("web_gfx/sample_bad_0"),
+                readSampleFolder("web_gfx/sample_bad_1"),
+                readSampleFolder("web_gfx/sample_bad_2"),
+            ]).then((samples)=>{
+                let slices = [
+                    samples.slice(0,2),
+                    samples.slice(2,4),
+                    samples.slice(4,6),
+                    samples.slice(6)
+                ]
+                let sampleViews = makevbox(slices.map(slice=>makehbox(slice.map(smp=>
+                       makevbox([
+                            makeAudioView(smp.audio),
+                            makeImgView(smp.img)
+                       ])
+                ))))
 
+                let ft1 = [], ft2 = []
+
+                let pathGraph = makeColorMeshView()
+
+                function simf(a,b){
+                    let sa = 0
+                    let sb = 0
+                    let sab = 0
+                    for(let i=0; i<a.length; i++){
+                        sa+=a[i]*a[i]
+                        sb+=b[i]*b[i]
+                        sab+=a[i]*b[i]
+                    }
+                    return sab*sab/(sa+0.1)/(sb+0.1)
+                }
+
+                function compDots(){
+                    let res = Array(ft1.length).fill(0).map(()=>Array(ft2.length).fill(0))
+                    for(let i=0; i<ft1.length; i++){
+                        for(let j=0; j<ft2.length; j++){
+                            res[i][j] = simf(ft1[i],ft2[j])
+                        }
+                    }
+                    pathGraph.setArray(res)
+                }
+
+                let pathBox = makevbox([
+                    makehbox([
+                        makeDropdown("Audio 1", samples.map(smp=>smp.name),i=>{
+                            ft1=samples[i].feature
+                            compDots()
+                        }),
+                        makeDropdown("Audio 2", samples.map(smp=>smp.name),i=>{
+                            ft2=samples[i].feature
+                            compDots()
+                        })
+                    ]),
+                    pathGraph.html
+                ])
+
+                let main = makevbox([
+                    pathBox,
+                    sampleViews
+                ])
                 document.body.appendChild(main)
             })
         </script>
+
         <style>
+            img{
+                max-width: 600px;
+            }
             canvas{
-                border: solid 1px;
-                height: 250px;
                 width: unset;
+                height: unset;
             }
         </style>
     </body>

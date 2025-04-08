@@ -19,3 +19,17 @@ function readTextFile(fileName){
       return response.text();
     });
 }
+
+function readSampleFolder(url){
+  return fetch(url+"/feature.json")
+  .then(resp=>{
+    return resp.json()
+  }).then(obj=>{
+    return {
+      img: url+"/visualization.png",
+      audio: url+"/audio.wav",
+      feature: obj,
+      name: url
+    }
+  })
+}
